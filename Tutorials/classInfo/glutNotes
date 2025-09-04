@@ -1,0 +1,134 @@
+glut program structure
+1 - initialize OpenGl mode(color, projection, depth, ...)
+2 - configure and open windows
+3 - user own initialization
+    set background color, clear color, drawing color, point size,
+    establish coordinate system, etc
+4 - set callbacks (display, inputs, timer)
+5 - enter the main loop of the windowing system -> waits infinitely till an action is selected
+
+GLUT: opening a window 
+glutInit(&argc, argv)
+    -intialize glut
+glutInitDisplayMode(Glut_SINGLE | GLUT_RGB);
+    -sets display mode (e.g., single buffer with RGB)
+glutInitWindowPosition(100,150);
+    -sets window position 
+glutInitWindowSize(640, 480);
+    -sets window size(640x480) 
+glutCreateWindow("my first attempt");
+    -open window with title"my first attempt" 
+
+These functions are normally placed in main function
+
+GLUT: callbacks
+    what are the callbacks? 
+        a piece of code that serves for corresponding events
+
+    windowing systems use events such as:
+        opening a window 
+        mouse move
+        hit a key
+        closing a window
+        selecting an item from a menu 
+
+Glut: callback functions
+    Register all events your program react to
+    if an Event occurs, the system generates callback 
+    callback: routine system calls when event occurs 
+    no registered call back = no action 
+    callback events: key presses, mouse button presses, window resize, etc
+
+
+Glut: callback example display 
+    Display callback function: 
+        glutDisplayFunc(void(*func)(void))
+
+    called initially when pixels in the window need to be refreshed
+    How to use:
+        register callback in main function 
+            glutDisplayFunc(myDisplay)
+        
+        then implement display function
+        Void myDisplay(void){
+            glBegin(GL_LINES)
+                glVertex3f(x1,y1,z1)
+                glVertex3f(x2,y2,z2)
+            glEnd();
+        }
+
+GLUT Callback functions
+    glutKeyboardFunc()
+        register the callback that will be called when a key is pressed
+    glutMouseFunc()
+        registerthe callback thatwill be called when a mouse button is pressed
+    glutMotionFunc()
+        register the callback that will be called when the mouse is in motion while a button is pressed
+    glutIdleFunc()
+        register the callback that will be called when nothing is going on(no event),
+        used for animation and continuous update
+
+Glut Begin/End commands
+    glVertex*() //set the vertex coordinates
+    glColor*() //set current color 
+    glIndex*() // set current color index 
+    glNormal*() //set normal vector coordinates(light)'
+    glTexCoord*() //set texture coordinates(Texture)
+
+    used to define a sequence of vertices that make up a primitive
+    define the primitive itself defines the behavior that glbegin and glend should do.
+    glBegin(GLenum primitive);
+
+    glEnd();
+    
+    //How primitives are specified
+    glBegin(primitiveType);
+        //define primtive here
+    glEnd();
+
+    Primitive type: GL_POINTS, GL_LINES, GL_TRIANGLES, GL_QUADS, GL_POLYGONS
+
+glVertex Command defines a vertex in 2d or 3d space that will be part of a primitive(point, line triangle, etc)
+its defined in glBegin(), glEnd(). Everytime glVertex is called, opengl records the vertex.
+Ways to modify vertex function
+glVertex3f(x,y)
+
+3 specifies the number of dimension, it can be between 2 and 4
+f is the type of data it is represented with 
+add a v after f if you want to represent the vertex with a vector pointing to it.
+
+
+gl supports pop up menus
+    a menu can have submenus
+
+three steps
+    define entries for the menu
+    define action for each menu item 
+        action carried out if entry selected
+    action menu to a mouse button 
+
+
+glut menu: defining a simple menu 
+    in main.cpp:
+        menu_id = glutCreateMenu(mymenu);
+        glutAddmenuEntry("clear Screen", 1);
+        glutAddMenuEntry("exit", 2);
+        glutAttachMenu(GLUT_RIGHT_BUTTON);
+
+        "clear Screen" and "exit" are entries that appear when right button pressed 
+        1 and 2 are identifiers
+
+    Menu callback:
+        void mymenu(int id){
+            if(id == 1) glClear();
+            if(id ==2) exit(0);
+        }
+
+        Note each menu has an id that is returned when it is created 
+        add sub menus by 
+        glutAddSubMenu(char *submenu_name, submenu_id)
+
+        submenu_name is entry in parent menu
+    
+
+
