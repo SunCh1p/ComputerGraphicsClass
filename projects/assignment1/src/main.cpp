@@ -1,8 +1,19 @@
 #include <GL/glut.h>
+#include <cstdlib>
+#include <ctime>
 #define WIN_X 100
 #define WIN_Y 100
 #define WIN_H 720
 #define WIN_W 1280
+
+void DrawAxes(){
+    glBegin(GL_LINES);
+        glColor3f(1,0,0); glVertex3f(0,0,0); glVertex3f(10,0,0);
+        glColor3f(0,1,0); glVertex3f(0,0,0); glVertex3f(0,10,0);
+        glColor3f(0,0,1); glVertex3f(0,0,0); glVertex3f(0,0,10);
+    glEnd();
+}
+
 
 //callback function for glutDisplayFunc
 void myDisplay(){
@@ -20,17 +31,19 @@ void myDisplay(){
     //     //draw vertice 3
     //     glVertex3f(-0.25, -0.25, 0);
     // glEnd();
+    DrawAxes();
+    //end drawing
     glFlush();
 }
 
 void init(void){
     /*select clearing background color*/
     glClearColor(0.0, 0.0, 0.0, 0.0);
-    /*Initialize viewing values*/
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+    //glOrtho(-WIN_W/2, WIN_W/2, -WIN_H/2, WIN_H/2, -100, 100);
 }
+
 
 int main(int argc, char** argv){
     //initialize glut
@@ -42,12 +55,11 @@ int main(int argc, char** argv){
     //set window size
     glutInitWindowSize(WIN_W, WIN_H);
     //create the window
-    glutCreateWindow("DrawSquare");
-
-    init(); //initialize opengl state
-
+    glutCreateWindow("Assignment 1 - Connor Blaha");
+    //initialize opengl state
+    init();
+    //register callbacks
     glutDisplayFunc(myDisplay); //register display callback
     glutMainLoop(); //enter event loop
-
     return 0;
 }
