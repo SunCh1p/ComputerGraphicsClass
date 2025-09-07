@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include "composite.h"
 #define WIN_X 100
 #define WIN_Y 100
@@ -9,64 +10,73 @@
 
 Scene global_scene(Vector3(0,0,0));
 
+float angle = 0.0f;
+
 //callback function for glutDisplayFunc
-void myDisplay(){
-    glClear(GL_COLOR_BUFFER_BIT);
-    //draw the scene
-    global_scene.draw();
-    //garry.draw();
-    glFlush();
-}
-
-void init(void){
-    /*select clearing background color*/
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glMatrixMode(GL_PROJECTION);
+void renderScene(){
+    //clear color and depth buffers
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //reset transformations
     glLoadIdentity();
-    gluPerspective(45.0, (double)WIN_W / WIN_H, 0.1, 100.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(
-        0.0, 2, 10.0,  // camera position
-        0.0, 0.0, 0.0,   // look at origin
-        0.0, 1.0, 0.0    // up vector
-    );
+    //set the camera
+    gluLookAt(	0.0f, 0.0f, 10.0f,
+			0.0f, 0.0f,  0.0f,
+			0.0f, 1.0f,  0.0f);
+    glRotatef(angle, 0.0f, 1.0f, 0.0f);
+	glBegin(GL_TRIANGLES);
+		glVertex3f(-2.0f,-2.0f, 0.0f);
+		glVertex3f( 2.0f, 0.0f, 0.0);
+		glVertex3f( 0.0f, 2.0f, 0.0);
+	glEnd();
+
+    angle+=0.1f;
+    glutSwapBuffers();
 }
 
-void initScene(){
-    //add axis to the scene
-    global_scene.addChild(std::make_unique<Axes>());
-
-    //Create a humanoid robot named garry
-    auto garry = std::make_unique<HumanoidRobot>();
-    //give garry a head
-    garry->addChild(BodyPart::Head, std::make_unique<Cube>(1.0, Vector3(0, 2.5, 0)));
-    //give garry a torso
-    garry->addChild(BodyPart::Torso, std::make_unique<Cube>(2.0, Vector3(0, 1, 0)));
-    
-    //add garry to the scene
-    global_scene.addChild(std::move(garry));
+/*function taken from http://www.lighthouse3d.com/tutorials/glut-tutorial/preparing-the-window-for-a-reshape/*/
+void changeSize(int w, int h){
+    // Prevent a divide by zero, when window is too short
+	// (you cant make a window of zero width).
+	if(h == 0)
+		h = 1;
+	float ratio = 1.0* w / h;
+	// Use the Projection Matrix
+	glMatrixMode(GL_PROJECTION);
+    // Reset Matrix
+	glLoadIdentity();
+	// Set the viewport to be the entire window
+	glViewport(0, 0, w, h);
+	// Set the correct perspective.
+	gluPerspective(45,ratio,1,1000);
+	// Get Back to the Modelview
+	glMatrixMode(GL_MODELVIEW);
 }
 
-void procKeys(unsigned char key){
+void processKeys(unsigned char key, int x, int y){
     switch(key){
         case 'p':
             //implementing displaying vertex mode
+            std::cout << "Vertex Mode" << std::endl;
             break;
         case 'w':
             //implement displaying wireframe mode
+            std::cout << "Wireframe mode" << std::endl;
             break;
         case 's':
             //implement displaying solid mode
+            std::cout << "Solid Mode" << std::endl;
             break;
         case 'c':
             //implement clearing screen and only showing background
+            std::cout << "Clearing screen" << std::endl;
             break;
         case 'a':
             //implement toggling axis display
+            std::cout << "toggling axis" << std::endl;
             break;
         case 't':
             //implement speaking functionality
+            std::cout << "Robot speaking" << std::endl;
             break;
         case 27:
             exit(0);
@@ -75,28 +85,29 @@ void procKeys(unsigned char key){
 }
 
 int main(int argc, char** argv){
-    //initialize glut
-    glutInit(&argc, argv);
-    //set display mode
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_RGB);
-    //set window position
-    glutInitWindowPosition(WIN_X, WIN_Y);
-    //set window size
-    glutInitWindowSize(WIN_W, WIN_H);
-    //create the window
-    glutCreateWindow("Assignment 1 - Connor Blaha");
-    //Initialize depth checking
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-    glDepthFunc(GL_LEQUAL);
-    glDepthRange(0.0f, 1.0f);
-    //initialize opengl state
-    init();
+    /*Initialize glut and create window*/
+        //initialize glut
+        glutInit(&argc, argv);
+        //set window position
+        glutInitWindowPosition(WIN_X, WIN_Y);
+        //set window size
+        glutInitWindowSize(WIN_W, WIN_H);
+        //set display mode
+        glutInitDisplayMode(GLUT_DEPTH | GLUT_RGB | GLUT_DOUBLE);
+        //create the window
+        glutCreateWindow("Assignment 1 - Connor Blaha | 811054403");
 
-    //initialize scene
-    initScene();
-    //register callbacks
-    glutDisplayFunc(myDisplay); //register display callback
-    glutMainLoop(); //enter event loop
+    /*register callbacks*/
+        glutDisplayFunc(renderScene);
+        glutReshapeFunc(changeSize);
+        //allows you to register a callback function when application is idle
+        glutIdleFunc(renderScene);
+        //allows you to process keyboard events
+        glutKeyboardFunc(processKeys);
+
+    /*enter glut event processing cycle*/
+        //enter event loop
+        glutMainLoop();
+
     return 0;
 }
