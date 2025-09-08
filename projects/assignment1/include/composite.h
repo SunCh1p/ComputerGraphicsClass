@@ -5,7 +5,6 @@
 #include <GL/glut.h>
 #include "util.h"
 
-
 /*Using Composite Design pattern as inspiration but it doesn't strictly adhere,
     In the composite design pattern there is an abstract component which declares a common interface,
     a composite which also has a common interface, and a leaf node which has a common interface as well but no children.
@@ -24,7 +23,7 @@ class Component{
         Vector3 m_color;
 };
 
-//composite classes
+
 class HumanoidRobot{
     public:
         HumanoidRobot(Vector3 position = Vector3(0,0,0)): m_position(position){}
@@ -50,6 +49,10 @@ class HumanoidRobot{
         //all m_children of humanoid robot
         std::unordered_map<BodyPart, std::unique_ptr<Component>> m_children;
 };
+
+
+//composite classes/non exist atm/
+
 
 //Cube(a leaf class)
 class Cube : public Component{
@@ -134,69 +137,65 @@ class Box : public Component{
             m_length = length;
         }
         void draw(Vector3 parentPosition, char mode) const override{
-            //calculate global position
+            //calculate global position of front top left corner
             Vector3 globalPosition = parentPosition+m_position;
             glPushMatrix();
-                //set the position. Will draw from front top left corner instead of center
+                //set the position of front top left corner
                 glTranslated(globalPosition.x, globalPosition.y, globalPosition.z);
                 //set the color
                 glColor3d(m_color.x, m_color.y, m_color.z);
                 //set the draw mode
                 GLenum drawMode = GL_ZERO;
-                //draws with reference to top left front corner
-                GLdouble m_x = m_position.x;
-                GLdouble m_y = m_position.y;
-                GLdouble m_z = m_position.z;
                 if(mode == 'p'){
                     glBegin(GL_POINTS);
                         //draw upper 4 corners
-                        glVertex3d(m_x, m_y, m_z);
-                        glVertex3d(m_x, m_y, m_z-m_length);
-                        glVertex3d(m_x+m_width, m_y, m_z);
-                        glVertex3d(m_x+m_width, m_y, m_z-m_length);
+                        glVertex3d(0, 0, 0);
+                        glVertex3d(0, 0, 0-m_length);
+                        glVertex3d(0+m_width, 0, 0);
+                        glVertex3d(0+m_width, 0, 0-m_length);
                         //draw upper 4 corners
-                        glVertex3d(m_x, m_y-m_height, m_z);
-                        glVertex3d(m_x, m_y-m_height, m_z-m_length);
-                        glVertex3d(m_x+m_width, m_y-m_height, m_z);
-                        glVertex3d(m_x+m_width, m_y-m_height, m_z-m_length);
+                        glVertex3d(0, 0-m_height, 0);
+                        glVertex3d(0, 0-m_height, 0-m_length);
+                        glVertex3d(0+m_width, 0-m_height, 0);
+                        glVertex3d(0+m_width, 0-m_height, 0-m_length);
                     glEnd();
                 } else if(mode == 'w'){
                     glBegin(GL_LINES);
                         //line going from front top left to back top left
-                        drawLine(Vector3(m_x, m_y, m_z), Vector3(m_x, m_y, m_z-m_length));
+                        drawLine(Vector3(0, 0, 0), Vector3(0, 0, 0-m_length));
                         //line going from back top left to back top right
-                        drawLine(Vector3(m_x, m_y, m_z-m_length), Vector3(m_x+m_width, m_y, m_z-m_length));
+                        drawLine(Vector3(0, 0, 0-m_length), Vector3(0+m_width, 0, 0-m_length));
                         //line going from back top right to front top right
-                        drawLine(Vector3(m_x+m_width, m_y, m_z-m_length), Vector3(m_x+m_width, m_y, m_z));
+                        drawLine(Vector3(0+m_width, 0, 0-m_length), Vector3(0+m_width, 0, 0));
                         //line going from front top right to front top left
-                        drawLine(Vector3(m_x+m_width, m_y, m_z), Vector3(m_x, m_y, m_z));
+                        drawLine(Vector3(0+m_width, 0, 0), Vector3(0, 0, 0));
                         //line going from front top left to front bottom left
-                        drawLine(Vector3(m_x, m_y, m_z), Vector3(m_x, m_y-m_height, m_z));
+                        drawLine(Vector3(0, 0, 0), Vector3(0, 0-m_height, 0));
                         //line going from front top right to front bottom right
-                        drawLine(Vector3(m_x+m_width, m_y, m_z), Vector3(m_x+m_width, m_y-m_height, m_z));
+                        drawLine(Vector3(0+m_width, 0, 0), Vector3(0+m_width, 0-m_height, 0));
                         //line going from back top right to back bottom right
-                        drawLine(Vector3(m_x+m_width, m_y, m_z-m_length), Vector3(m_x+m_width, m_y-m_height, m_z-m_length));
+                        drawLine(Vector3(0+m_width, 0, 0-m_length), Vector3(0+m_width, 0-m_height, 0-m_length));
                         //line going from back top left to back bottom left
-                        drawLine(Vector3(m_x, m_y, m_z-m_length), Vector3(m_x, m_y-m_height, m_z-m_length));
+                        drawLine(Vector3(0, 0, 0-m_length), Vector3(0, 0-m_height, 0-m_length));
                         //line going from front bottom left to back bottom left
-                        drawLine(Vector3(m_x, m_y-m_height, m_z), Vector3(m_x, m_y-m_height, m_z-m_length));
+                        drawLine(Vector3(0, 0-m_height, 0), Vector3(0, 0-m_height, 0-m_length));
                         //line going from back bottom left to back bottom right
-                        drawLine(Vector3(m_x, m_y-m_height, m_z-m_length), Vector3(m_x+m_width, m_y-m_height, m_z-m_length));
+                        drawLine(Vector3(0, 0-m_height, 0-m_length), Vector3(0+m_width, 0-m_height, 0-m_length));
                         //line going from back bottom right to front bottom right
-                        drawLine(Vector3(m_x+m_width, m_y-m_height, m_z-m_length), Vector3(m_x+m_width, m_y-m_height, m_z));
+                        drawLine(Vector3(0+m_width, 0-m_height, 0-m_length), Vector3(0+m_width, 0-m_height, 0));
                         //line going from front bottom right to front bottom left
-                        drawLine(Vector3(m_x+m_width, m_y-m_height, m_z), Vector3(m_x, m_y-m_height, m_z));
+                        drawLine(Vector3(0+m_width, 0-m_height, 0), Vector3(0, 0-m_height, 0));
                     glEnd();
                 } else if(mode == 's'){
                     glBegin(GL_QUADS);
-                        Vector3 frontTopLeft(m_x, m_y, m_z);
-                        Vector3 frontTopRight(m_x+m_width, m_y, m_z);
-                        Vector3 backTopLeft(m_x, m_y, m_z-m_length);
-                        Vector3 backTopRight(m_x+m_width, m_y, m_z-m_length);
-                        Vector3 frontBottomLeft(m_x, m_y-m_height, m_z);
-                        Vector3 frontBottomRight(m_x+m_width, m_y-m_height, m_z);
-                        Vector3 backBottomLeft(m_x, m_y-m_height, m_z-m_length);
-                        Vector3 backBottomRight(m_x+m_width, m_y-m_height, m_z-m_length);
+                        Vector3 frontTopLeft(0, 0, 0);
+                        Vector3 frontTopRight(0+m_width, 0, 0);
+                        Vector3 backTopLeft(0, 0, 0-m_length);
+                        Vector3 backTopRight(0+m_width, 0, 0-m_length);
+                        Vector3 frontBottomLeft(0, 0-m_height, 0);
+                        Vector3 frontBottomRight(0+m_width, 0-m_height, 0);
+                        Vector3 backBottomLeft(0, 0-m_height, 0-m_length);
+                        Vector3 backBottomRight(0+m_width, 0-m_height, 0-m_length);
                         //draw top face
                         drawFace(frontTopLeft, frontTopRight, backTopRight, backTopLeft);
                         //draw bottom face
@@ -204,11 +203,11 @@ class Box : public Component{
                         //draw front face
                         drawFace(frontTopLeft, frontTopRight, frontBottomRight, frontBottomLeft);
                         //draw left face
-                        drawFace(frontTopLeft, backTopLeft, backBottomLeft, backBottomRight);
+                        drawFace(frontTopLeft, backTopLeft, backBottomLeft, frontBottomRight);
                         //draw back face
-                        //drawFace();
+                        drawFace(backTopLeft, backTopRight, backBottomRight, backBottomLeft);
                         //draw right face
-                        //drawFace();
+                        drawFace(frontTopRight, backTopRight, backBottomRight, frontBottomRight);
                     glEnd();
                 }
             glPopMatrix();
@@ -227,21 +226,23 @@ class Axes : public Component{
         void draw(Vector3 parentPosition = Vector3(0,0,0), char mode='c') const{
             //get global position
             Vector3 globalPosition = parentPosition+m_position;
+            //translate position
+            glTranslated(globalPosition.x, globalPosition.y, globalPosition.z);
             //push a new matrix
             glPushMatrix();
                 glBegin(GL_LINES);
                     //draw x red relative to parents position
                     glColor3f(1,0,0);
-                    glVertex3f(globalPosition.x, globalPosition.y, globalPosition.z);
-                    glVertex3f(globalPosition.x+20, globalPosition.y, globalPosition.z);
+                    glVertex3f(0, 0, 0);
+                    glVertex3f(0+40, 0, 0);
                     //draw y green
                     glColor3f(0,1,0);
-                    glVertex3f(globalPosition.x, globalPosition.y, globalPosition.z);
-                    glVertex3f(globalPosition.x, globalPosition.y+20, globalPosition.z);
+                    glVertex3f(0, 0, 0);
+                    glVertex3f(0, 0+40, 0);
                     //draw z blue
                     glColor3f(0,0,1);
-                    glVertex3f(globalPosition.x, globalPosition.y, globalPosition.z);
-                    glVertex3f(globalPosition.x, globalPosition.y, globalPosition.z+20);
+                    glVertex3f(0, 0, 0);
+                    glVertex3f(0, 0, 0+40);
                 glEnd();
             //reset to state before function
             glPopMatrix();

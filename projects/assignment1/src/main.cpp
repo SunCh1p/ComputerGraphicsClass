@@ -83,18 +83,26 @@ void processKeys(unsigned char key, int x, int y){
 
 void initScene(){
     //set the camera position
-    camera.setPosition(Vector3(0,5,15));
+    camera.setPosition(Vector3(1.5,5,30));
     camera.setTarget(Vector3(0,0,0));
     //give robot a head
-    robot.addChild(BodyPart::Head, std::make_unique<Sphere>(1.0, Vector3(0, 3, 0)));
+    auto tmpPtr = std::make_unique<Box>(1,7,1,1,1,1);
+    robot.addChild(BodyPart::Head, std::move(tmpPtr));
     //give robot a torso
-    robot.addChild(BodyPart::Torso, std::make_unique<Cube>(2.0, Vector3(0, 1, 0)));
+    tmpPtr = std::make_unique<Box>(0,6,1,3,3,1);
+    robot.addChild(BodyPart::Torso, std::move(tmpPtr));
     //give robot a left arm
-    auto tmpPtr = std::make_unique<Box>(-1,2,0,1,3,1);
+    tmpPtr = std::make_unique<Box>(-1,6,1,1,3,1);
     robot.addChild(BodyPart::LeftArm, std::move(tmpPtr));
     //give robot a right arm
+    tmpPtr = std::make_unique<Box>(3,6,1,1,3,1);
+    robot.addChild(BodyPart::RightArm, std::move(tmpPtr));
     //give robot a left leg
-    //give robot a right leg
+    tmpPtr = std::make_unique<Box>(0,3,1,1,3,1);
+    robot.addChild(BodyPart::LeftLeg, std::move(tmpPtr));
+    // //give robot a right leg
+    tmpPtr = std::make_unique<Box>(2,3,1,1,3,1);
+    robot.addChild(BodyPart::RightLeg, std::move(tmpPtr));
 }
 
 int main(int argc, char** argv){
