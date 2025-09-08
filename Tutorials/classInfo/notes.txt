@@ -1,0 +1,21 @@
+Modelings -> Transformation -> Rasterization
+
+Transformation : modeling transformation, view transformation 
+
+modeling transformation : moving vertices around 
+view transformation: orthographics and perspective
+
+Rasterization: finalize pixel values. After rasterization, everything is in  a frame buffer. 
+                                        frame buffer is transferred to computer graphic device driver:
+
+
+Components of computer system:
+    primary layer: hardware layer(memory, peripherals, display drivers)
+    secondary layer: Operating system(platform: linux, windows, embedded system) layer to communicate with hardware
+    tertiary layer: application layer(software for platform)
+
+    between secondary and tertiary, there is the libary layer. Libraries provide api for users to develop something on platform/
+
+    layer between os and hardware layer is called the firmware layer(device drivers)
+
+For this class, the api we use is called opengl, means application programming interface for user to access libary
