@@ -3,87 +3,50 @@
 #include <vector>
 #include <memory>
 #include <GL/glut.h>
+#include "util.h"
 
-//TODO create vector3 class
-struct Vector3{
-    GLdouble x, y, z;
-    Vector3(GLdouble X, GLdouble Y, GLdouble Z) : x(X), y(Y), z(Z){}
-    Vector3 operator+(const Vector3& other){
-        return Vector3(x+other.x, y+other.y, z+other.z);
-    }
-    bool operator==(Vector3 other){
-        return x==other.x&&y==other.y&&z==other.z;
-    }
-    bool operator!=(Vector3 other){
-        return !(*this == other);
-    }
-};
 
-enum class BodyPart{
-    Head,
-    Torso,
-    LeftLeg,
-    RightLeg,
-    LeftArm,
-    RightArm,
-    Default
-};
-
-/*Using Composite Design pattern to implement a 'scene tree',
-    which can have everything including an axis, camera, and all objects in the scene*/
-//abstract component used for defining scenes and things that can exist within scenes
+/*Using Composite Design pattern as inspiration but it doesn't strictly adhere,
+    In the composite design pattern there is an abstract component which declares a common interface,
+    a composite which also has a common interface, and a leaf node which has a common interface as well but no children.
+*/
+//interface in which all body parts will use
 class Component{
     public:
-        Component(Vector3 position = Vector3(0,0,0)): m_position(position) {}
+        Component(Vector3 position = Vector3(0,0,0), Vector3 color=Vector3(0,1,0)): m_position(position), m_color(color){}
         //must be overwritten
-        virtual void draw(Vector3 parentPosition) const = 0;
+        virtual void draw(Vector3 parentPosition, char mode) const = 0;
         //optional to override
-        virtual void addChild(BodyPart part ,std::unique_ptr<Component> child){}
-        virtual void addChild(std::unique_ptr<Component> child){}
-
+        virtual void setColor(Vector3 color){m_color = color;}
     protected:
         //coordinates relative to parent where parent is (0,0,0)
         Vector3 m_position;
-  
+        Vector3 m_color;
 };
 
 //composite classes
-class Scene : public Component{
+class HumanoidRobot{
     public:
-        Scene(Vector3 position = Vector3(0,0,0)): Component(position){}
-        void draw(Vector3 parentPosition = {0,0,0}) const override{
-            //get position in world
-            Vector3 globalPosition = parentPosition + m_position;
+        HumanoidRobot(Vector3 position = Vector3(0,0,0)): m_position(position){}
+        void draw(char mode){
             //draw all m_children relative to current position
             for(auto& it: m_children){
-                it->draw(globalPosition);
+                it.second->draw(m_position, mode);
             }
         }
-        void addChild(std::unique_ptr<Component> child) override{
-            //move unique ptr into container
-            m_children.push_back(std::move(child));
-        }
-    private:
-        std::vector<std::unique_ptr<Component>> m_children;
-};
-
-class HumanoidRobot : public Component{
-    public:
-        HumanoidRobot(Vector3 position = Vector3(0,0,0)): Component(position){}
-        void draw(Vector3 parentPosition = {0,0,0}) const override{
-            //get position in world
-            Vector3 globalPosition = parentPosition + m_position;
-            //draw all m_children relative to current position
-            for(auto& it: m_children){
-                it.second->draw(globalPosition);
-            }
-        }
-        void addChild(BodyPart part ,std::unique_ptr<Component> child) override{
+        void addChild(BodyPart part ,std::unique_ptr<Component> child){
             //move unique ptr into container
             m_children[part] = std::move(child);
         }
-
+        void colorBodyPart(BodyPart part, Vector3 color){
+            //check if part exists
+            if(m_children.find(part) != m_children.end()){
+                //if so color the child
+                m_children[part]->setColor(color);
+            }
+        }
     private:
+        Vector3 m_position;
         //all m_children of humanoid robot
         std::unordered_map<BodyPart, std::unique_ptr<Component>> m_children;
 };
@@ -92,28 +55,176 @@ class HumanoidRobot : public Component{
 class Cube : public Component{
     public:
         Cube(GLdouble size, Vector3 position = Vector3(0,0,0)): m_size(size), Component(position) {}
-        void draw(Vector3 parentPosition) const override{
-            //push a new matrix
+        void draw(Vector3 parentPosition, char mode) const override{
+            //calculate global position
+            Vector3 globalPosition = parentPosition+m_position;
             glPushMatrix();
-                //apply color(Everything is red for now)
-                glColor3d(1,0,0);
                 //set the position
-                Vector3 globalPosition = parentPosition+m_position;
                 glTranslated(globalPosition.x, globalPosition.y, globalPosition.z);
-                //draw the cube(Solid for now)
-                glutWireCube(m_size);
-            //reset to state before function
+                //set the color
+                glColor3d(m_color.x, m_color.y, m_color.z);
+                //draw based on mode
+                if(mode == 'p'){
+                    GLdouble point = m_size/2;
+                    //draw vertex mode
+                    glBegin(GL_POINTS);
+                        //draw upper 4 corners
+                        glVertex3d(point, point, point);
+                        glVertex3d(point, point, -point);
+                        glVertex3d(-point, point, point);
+                        glVertex3d(-point, point, -point);
+                        //draw lower 4 corners
+                        glVertex3d(point, -point, point);
+                        glVertex3d(point, -point, -point);
+                        glVertex3d(-point, -point, point);
+                        glVertex3d(-point, -point, -point);
+                    glEnd();
+                } else if(mode == 'w'){
+                    //draw wireframe mode
+                    glutWireCube(m_size);
+                } else if(mode == 's'){
+                    //draw solid mode
+                    glutSolidCube(m_size);
+                }
             glPopMatrix();
+            //otherwise, do nothing
         }
     private:
         GLdouble m_size;
+};
+
+//Cube(a leaf class)
+class Sphere : public Component{
+    public:
+        Sphere(GLdouble size, Vector3 position = Vector3(0,0,0)): m_radius(size), Component(position) {}
+        void draw(Vector3 parentPosition, char mode) const override{
+            //calculate global position
+            Vector3 globalPosition = parentPosition+m_position;
+            glPushMatrix();
+                //set the position
+                glTranslated(globalPosition.x, globalPosition.y, globalPosition.z);
+                //set the color
+                glColor3d(m_color.x, m_color.y, m_color.z);
+                //draw based on mode
+                if(mode == 'p'){
+                    //TODO: make a vertex mode with spherical coordinates then convert to cartesian coordiantes
+                    glBegin(GL_POINTS);
+
+                    glEnd();
+                } else if(mode == 'w'){
+                    //draw wireframe mode
+                    glutWireSphere(m_radius,10,10);
+                } else if(mode == 's'){
+                    //draw solid mode
+                    glutSolidSphere(m_radius,10,10);
+                }
+            glPopMatrix();
+            //otherwise, do nothing
+        }
+    private:
+        GLdouble m_radius;
+};
+
+class Box : public Component{
+    public:
+        Box(GLdouble frontTopLeftX, GLdouble frontTopLeftY, GLdouble frontTopLeftZ, GLdouble width, GLdouble height, GLdouble length){
+            m_position = Vector3(frontTopLeftX, frontTopLeftY, frontTopLeftZ);
+            m_width = width;
+            m_height = height;
+            m_length = length;
+        }
+        void draw(Vector3 parentPosition, char mode) const override{
+            //calculate global position
+            Vector3 globalPosition = parentPosition+m_position;
+            glPushMatrix();
+                //set the position. Will draw from front top left corner instead of center
+                glTranslated(globalPosition.x, globalPosition.y, globalPosition.z);
+                //set the color
+                glColor3d(m_color.x, m_color.y, m_color.z);
+                //set the draw mode
+                GLenum drawMode = GL_ZERO;
+                //draws with reference to top left front corner
+                GLdouble m_x = m_position.x;
+                GLdouble m_y = m_position.y;
+                GLdouble m_z = m_position.z;
+                if(mode == 'p'){
+                    glBegin(GL_POINTS);
+                        //draw upper 4 corners
+                        glVertex3d(m_x, m_y, m_z);
+                        glVertex3d(m_x, m_y, m_z-m_length);
+                        glVertex3d(m_x+m_width, m_y, m_z);
+                        glVertex3d(m_x+m_width, m_y, m_z-m_length);
+                        //draw upper 4 corners
+                        glVertex3d(m_x, m_y-m_height, m_z);
+                        glVertex3d(m_x, m_y-m_height, m_z-m_length);
+                        glVertex3d(m_x+m_width, m_y-m_height, m_z);
+                        glVertex3d(m_x+m_width, m_y-m_height, m_z-m_length);
+                    glEnd();
+                } else if(mode == 'w'){
+                    glBegin(GL_LINES);
+                        //line going from front top left to back top left
+                        drawLine(Vector3(m_x, m_y, m_z), Vector3(m_x, m_y, m_z-m_length));
+                        //line going from back top left to back top right
+                        drawLine(Vector3(m_x, m_y, m_z-m_length), Vector3(m_x+m_width, m_y, m_z-m_length));
+                        //line going from back top right to front top right
+                        drawLine(Vector3(m_x+m_width, m_y, m_z-m_length), Vector3(m_x+m_width, m_y, m_z));
+                        //line going from front top right to front top left
+                        drawLine(Vector3(m_x+m_width, m_y, m_z), Vector3(m_x, m_y, m_z));
+                        //line going from front top left to front bottom left
+                        drawLine(Vector3(m_x, m_y, m_z), Vector3(m_x, m_y-m_height, m_z));
+                        //line going from front top right to front bottom right
+                        drawLine(Vector3(m_x+m_width, m_y, m_z), Vector3(m_x+m_width, m_y-m_height, m_z));
+                        //line going from back top right to back bottom right
+                        drawLine(Vector3(m_x+m_width, m_y, m_z-m_length), Vector3(m_x+m_width, m_y-m_height, m_z-m_length));
+                        //line going from back top left to back bottom left
+                        drawLine(Vector3(m_x, m_y, m_z-m_length), Vector3(m_x, m_y-m_height, m_z-m_length));
+                        //line going from front bottom left to back bottom left
+                        drawLine(Vector3(m_x, m_y-m_height, m_z), Vector3(m_x, m_y-m_height, m_z-m_length));
+                        //line going from back bottom left to back bottom right
+                        drawLine(Vector3(m_x, m_y-m_height, m_z-m_length), Vector3(m_x+m_width, m_y-m_height, m_z-m_length));
+                        //line going from back bottom right to front bottom right
+                        drawLine(Vector3(m_x+m_width, m_y-m_height, m_z-m_length), Vector3(m_x+m_width, m_y-m_height, m_z));
+                        //line going from front bottom right to front bottom left
+                        drawLine(Vector3(m_x+m_width, m_y-m_height, m_z), Vector3(m_x, m_y-m_height, m_z));
+                    glEnd();
+                } else if(mode == 's'){
+                    glBegin(GL_QUADS);
+                        Vector3 frontTopLeft(m_x, m_y, m_z);
+                        Vector3 frontTopRight(m_x+m_width, m_y, m_z);
+                        Vector3 backTopLeft(m_x, m_y, m_z-m_length);
+                        Vector3 backTopRight(m_x+m_width, m_y, m_z-m_length);
+                        Vector3 frontBottomLeft(m_x, m_y-m_height, m_z);
+                        Vector3 frontBottomRight(m_x+m_width, m_y-m_height, m_z);
+                        Vector3 backBottomLeft(m_x, m_y-m_height, m_z-m_length);
+                        Vector3 backBottomRight(m_x+m_width, m_y-m_height, m_z-m_length);
+                        //draw top face
+                        drawFace(frontTopLeft, frontTopRight, backTopRight, backTopLeft);
+                        //draw bottom face
+                        drawFace(frontBottomLeft, frontBottomRight, backBottomRight, backBottomLeft);
+                        //draw front face
+                        drawFace(frontTopLeft, frontTopRight, frontBottomRight, frontBottomLeft);
+                        //draw left face
+                        drawFace(frontTopLeft, backTopLeft, backBottomLeft, backBottomRight);
+                        //draw back face
+                        //drawFace();
+                        //draw right face
+                        //drawFace();
+                    glEnd();
+                }
+            glPopMatrix();
+            //otherwise, do nothing
+        }
+    private:
+        GLdouble m_width;   //how long it is across x axis in the positive direction
+        GLdouble m_height;  //how long it is across y axis in the positive direction
+        GLdouble m_length;  //how long it is across z axis in the positive direction
 };
 
 //axes(a leaf class)
 class Axes : public Component{
     public:
         Axes(Vector3 position = Vector3(0,0,0)) : Component(position){}
-        void draw(Vector3 parentPosition) const override{
+        void draw(Vector3 parentPosition = Vector3(0,0,0), char mode='c') const{
             //get global position
             Vector3 globalPosition = parentPosition+m_position;
             //push a new matrix
@@ -146,6 +257,11 @@ class Camera{
         void setPosition(Vector3 position){m_eye = position;}
         void setTarget(Vector3 targetPosition){m_center = targetPosition;}
         void setUp(Vector3 newUp){m_up = newUp;}
+        //Resource used for implementing camera rotation around what it's looking at
+        //http://www.lighthouse3d.com/tutorials/glut-tutorial/keyboard-example-moving-around-the-world/
+        void rotateAboutXAxis(GLdouble angle){}
+        void rotateAboutYAxis(GLdouble angle){}
+        void rotateAboutZAxis(GLdouble angle){}
         //accessor methods
         Vector3 getPosition() const{return m_eye;}
         Vector3 getTarget() const{return m_center;}
@@ -163,35 +279,4 @@ class Camera{
         Vector3 m_center;
         //which direction is up for the camera
         Vector3 m_up;
-
 };
-
-// void init(){
-//     /*select clearing background color*/
-//     glClearColor(0.0, 0.0, 0.0, 0.0);
-//     glMatrixMode(GL_PROJECTION);
-//     glLoadIdentity();
-//     gluPerspective(45.0, (double)WIN_W / WIN_H, 0.1, 100.0);
-//     glMatrixMode(GL_MODELVIEW);
-//     glLoadIdentity();
-//     gluLookAt(
-//         0.0, 2, 10.0,  // camera position
-//         0.0, 0.0, 0.0,   // look at origin
-//         0.0, 1.0, 0.0    // up vector
-//     );
-// }
-
-// void initScene(){
-//     //add axis to the scene
-//     global_scene.addChild(std::make_unique<Axes>());
-
-//     //Create a humanoid robot named garry
-//     auto garry = std::make_unique<HumanoidRobot>();
-//     //give garry a head
-//     garry->addChild(BodyPart::Head, std::make_unique<Cube>(1.0, Vector3(0, 2.5, 0)));
-//     //give garry a torso
-//     garry->addChild(BodyPart::Torso, std::make_unique<Cube>(2.0, Vector3(0, 1, 0)));
-    
-//     //add garry to the scene
-//     global_scene.addChild(std::move(garry));
-// }

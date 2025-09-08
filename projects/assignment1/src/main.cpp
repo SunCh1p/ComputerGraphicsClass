@@ -8,9 +8,12 @@
 #define WIN_H 720
 #define WIN_W 1280
 
-Scene global_scene(Vector3(0,0,0));
-
-float angle = 0.0f;
+//Variables in the scene
+char draw_mode = 'w'; //default to wireframe mode
+bool draw_axis = true; //default to draw axis being true
+Axes axe(Vector3(0,0,0)); //axis to draw
+HumanoidRobot robot(Vector3(0,0,0)); //robot to draw
+Camera camera; //camera to look at scene
 
 //callback function for glutDisplayFunc
 void renderScene(){
@@ -19,17 +22,14 @@ void renderScene(){
     //reset transformations
     glLoadIdentity();
     //set the camera
-    gluLookAt(	0.0f, 0.0f, 10.0f,
-			0.0f, 0.0f,  0.0f,
-			0.0f, 1.0f,  0.0f);
-    glRotatef(angle, 0.0f, 1.0f, 0.0f);
-	glBegin(GL_TRIANGLES);
-		glVertex3f(-2.0f,-2.0f, 0.0f);
-		glVertex3f( 2.0f, 0.0f, 0.0);
-		glVertex3f( 0.0f, 2.0f, 0.0);
-	glEnd();
-
-    angle+=0.1f;
+    camera.setCamera();
+    //draw axis if enabled
+    if(draw_axis){
+        axe.draw();
+    }
+    //draw robot
+    robot.draw(draw_mode);
+    //swap buffers
     glutSwapBuffers();
 }
 
@@ -55,24 +55,21 @@ void changeSize(int w, int h){
 void processKeys(unsigned char key, int x, int y){
     switch(key){
         case 'p':
-            //implementing displaying vertex mode
-            std::cout << "Vertex Mode" << std::endl;
+            draw_mode = 'p';
             break;
         case 'w':
-            //implement displaying wireframe mode
-            std::cout << "Wireframe mode" << std::endl;
+            draw_mode = 'w';
             break;
         case 's':
-            //implement displaying solid mode
-            std::cout << "Solid Mode" << std::endl;
+            draw_mode = 's';
             break;
         case 'c':
             //implement clearing screen and only showing background
-            std::cout << "Clearing screen" << std::endl;
+            draw_mode = 'c';
+            draw_axis = false;
             break;
         case 'a':
-            //implement toggling axis display
-            std::cout << "toggling axis" << std::endl;
+            draw_axis = !draw_axis;
             break;
         case 't':
             //implement speaking functionality
@@ -82,6 +79,22 @@ void processKeys(unsigned char key, int x, int y){
             exit(0);
             break;
     }
+}
+
+void initScene(){
+    //set the camera position
+    camera.setPosition(Vector3(0,5,15));
+    camera.setTarget(Vector3(0,0,0));
+    //give robot a head
+    robot.addChild(BodyPart::Head, std::make_unique<Sphere>(1.0, Vector3(0, 3, 0)));
+    //give robot a torso
+    robot.addChild(BodyPart::Torso, std::make_unique<Cube>(2.0, Vector3(0, 1, 0)));
+    //give robot a left arm
+    auto tmpPtr = std::make_unique<Box>(-1,2,0,1,3,1);
+    robot.addChild(BodyPart::LeftArm, std::move(tmpPtr));
+    //give robot a right arm
+    //give robot a left leg
+    //give robot a right leg
 }
 
 int main(int argc, char** argv){
@@ -96,6 +109,8 @@ int main(int argc, char** argv){
         glutInitDisplayMode(GLUT_DEPTH | GLUT_RGB | GLUT_DOUBLE);
         //create the window
         glutCreateWindow("Assignment 1 - Connor Blaha | 811054403");
+        //initialize scene
+        initScene();
 
     /*register callbacks*/
         glutDisplayFunc(renderScene);
