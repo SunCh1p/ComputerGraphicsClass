@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <string>
 #include "composite.h"
 #define WIN_X 100
 #define WIN_Y 100
@@ -105,132 +106,54 @@ void initScene(){
 }
 
 void orbitAroundX(int option){
-    switch(option){
-        case 0:
-            camera.rotateAroundXAxis(30.0);
-            break;
-        case 1:
-            camera.rotateAroundXAxis(60.0);
-            break;
-        case 2:
-            camera.rotateAroundXAxis(90.0);
-            break;
-        case 3:
-            camera.rotateAroundXAxis(120.0);
-            break;
-        case 4:
-            camera.rotateAroundXAxis(150.0);
-            break;
-        case 5:
-            camera.rotateAroundXAxis(180.0);
-            break;
-        case 6:
-            camera.rotateAroundXAxis(210.0);
-            break;
-        case 7:
-            camera.rotateAroundXAxis(240.0);
-            break;
-        case 8:
-            camera.rotateAroundXAxis(270.0);
-            break;
-        case 9:
-            camera.rotateAroundXAxis(300.0);
-            break;
-        case 10:
-            camera.rotateAroundXAxis(330.0);
-            break;
-        case 11:
-            camera.rotateAroundXAxis(360.0);
-            break;
+    GLdouble angle = 30;
+    for(int i = 0; i < option+1; i++, angle+=30){
+        if(i == option){
+            camera.rotateAroundXAxis(angle);
+        }
     }
     camera.setCamera();
-
 }
+
 void orbitAroundY(int option){
-    switch(option){
-        case 0:
-            camera.rotateAroundYAxis(30.0);
-            break;
-        case 1:
-            camera.rotateAroundYAxis(60.0);
-            break;
-        case 2:
-            camera.rotateAroundYAxis(90.0);
-            break;
-        case 3:
-            camera.rotateAroundYAxis(120.0);
-            break;
-        case 4:
-            camera.rotateAroundYAxis(150.0);
-            break;
-        case 5:
-            camera.rotateAroundYAxis(180.0);
-            break;
-        case 6:
-            camera.rotateAroundYAxis(210.0);
-            break;
-        case 7:
-            camera.rotateAroundYAxis(240.0);
-            break;
-        case 8:
-            camera.rotateAroundYAxis(270.0);
-            break;
-        case 9:
-            camera.rotateAroundYAxis(300.0);
-            break;
-        case 10:
-            camera.rotateAroundYAxis(330.0);
-            break;
-        case 11:
-            camera.rotateAroundYAxis(360.0);
-            break;
+    GLdouble angle = 30;
+    for(int i = 0; i < option+1; i++, angle+=30){
+        if(i == option){
+            camera.rotateAroundYAxis(angle);
+        }
     }
     camera.setCamera();
 }
+
 void orbitAroundZ(int option){
-    switch(option){
-        case 0:
-            camera.rotateAroundZAxis(30.0);
-            break;
-        case 1:
-            camera.rotateAroundZAxis(60.0);
-            break;
-        case 2:
-            camera.rotateAroundZAxis(90.0);
-            break;
-        case 3:
-            camera.rotateAroundZAxis(120.0);
-            break;
-        case 4:
-            camera.rotateAroundZAxis(150.0);
-            break;
-        case 5:
-            camera.rotateAroundZAxis(180.0);
-            break;
-        case 6:
-            camera.rotateAroundZAxis(210.0);
-            break;
-        case 7:
-            camera.rotateAroundZAxis(240.0);
-            break;
-        case 8:
-            camera.rotateAroundZAxis(270.0);
-            break;
-        case 9:
-            camera.rotateAroundZAxis(300.0);
-            break;
-        case 10:
-            camera.rotateAroundZAxis(330.0);
-            break;
-        case 11:
-            camera.rotateAroundZAxis(360.0);
-            break;
+    GLdouble angle = 30;
+    for(int i = 0; i < option+1; i++, angle+=30){
+        if(i == option){
+            camera.rotateAroundYAxis(angle);
+        }
     }
     camera.setCamera();
 }
-void processOrbitMenu(int option){
+
+void rotateAroundX(int option){
 
 }
+
+void rotateAroundY(int option){
+
+}
+
+void rotateAroundZ(int option){
+
+}
+
+void processOrbitMenu(int option){
+}
+
+void processRotationMenu(int option){
+
+}
+
 void processProjectionMenu(int option){
     if(option == 0){
         std::cout << "orthographic projection" << std::endl;
@@ -242,39 +165,33 @@ void processPartToColor(int option){
 
 }
 void processHeadColorChange(int option){
-
+    robot.colorBodyPart(BodyPart::Head, option);
 }
 void processTorsoColorChange(int option){
-
+    robot.colorBodyPart(BodyPart::Torso, option);
 }
 void processLeftLegColorChange(int option){
-
+    robot.colorBodyPart(BodyPart::LeftLeg, option);
 }
 void processLeftArmColorChange(int option){
-
+    robot.colorBodyPart(BodyPart::LeftArm, option);
 }
 void processRightLegColorChange(int option){
-
+    robot.colorBodyPart(BodyPart::RightLeg, option);
 }
 void processRightArmColorChange(int option){
-
+    robot.colorBodyPart(BodyPart::RightArm, option);
 }
+
 void processMenuEvents(int option){
     std::cout << "Main menu" << std::endl;
 }
 void addDegEntries(){
-    glutAddMenuEntry("30 deg", 0);
-    glutAddMenuEntry("60 deg", 1);
-    glutAddMenuEntry("90 deg", 2);
-    glutAddMenuEntry("120 deg", 3);
-    glutAddMenuEntry("150 deg", 4);
-    glutAddMenuEntry("180 deg", 5);
-    glutAddMenuEntry("210 deg", 6);
-    glutAddMenuEntry("240 deg", 7);
-    glutAddMenuEntry("270 deg", 8);
-    glutAddMenuEntry("300 deg", 9);
-    glutAddMenuEntry("330 deg", 10);
-    glutAddMenuEntry("360 deg", 11);
+    int optionSelection = 0;
+    int angle = 30;
+    for(optionSelection; optionSelection < 12; optionSelection++, angle+=30){
+        glutAddMenuEntry((std::to_string(angle) + " deg").c_str(), optionSelection);
+    }
 }
 void addColorEntry(){
     glutAddMenuEntry("Red", 0);
@@ -282,7 +199,7 @@ void addColorEntry(){
     glutAddMenuEntry("Blue", 2);
 }
 void createGlutMenus(){
-    int menu, orbitMenu, projectionMenu, colorMenu;
+    int menu, orbitMenu, rotationMenu, projectionMenu, colorMenu;
     int x, y, z;
     int head, torso, leftLeg, leftArm, rightLeg, rightArm;
     //create sub menu for x orbiting
@@ -324,11 +241,17 @@ void createGlutMenus(){
     glutAddSubMenu("RightArm", rightArm);
     glutAddSubMenu("LeftLeg", leftLeg);
     glutAddSubMenu("RightLeg", rightLeg);
+    //sub menu for rotating object
+    rotationMenu = glutCreateMenu(processRotationMenu);
+    glutAddSubMenu("RotateAroundX", head);
+    glutAddSubMenu("RotateAroundY", torso);
+    glutAddSubMenu("RotateAroundZ", leftArm);
     //create the menu and tell glut that processMenuEvents will handle the events
     menu = glutCreateMenu(processMenuEvents);
     //add entries to the menu
     //add entries to our menu
 	glutAddSubMenu("Orbit Camera", orbitMenu);
+    glutAddSubMenu("Rotate Humanoid", rotationMenu);
 	glutAddSubMenu("Change Projection View", projectionMenu);
 	glutAddSubMenu("Change Color of Body Part", colorMenu);
 	// attach the menu to the right button
@@ -359,14 +282,6 @@ int main(int argc, char** argv){
         glutIdleFunc(renderScene);
         //allows you to process keyboard events
         glutKeyboardFunc(processKeys);
-
-    // std::cout << "Instruction: Enter a key" << std::endl;
-    // std::cout << "p: enter vertex mode" << std::endl;
-    // std::cout << "w: enter wireframe mode" << std::endl;
-    // std::cout << "s: enter solid mode" << std::endl;
-    // std::cout << "c: clear screen" << std::endl;
-    // std::cout << "a: toggle axis" << std::endl;
-    // std::cout << "t: make the robot speak" << std::endl; 
 
     /*enter glut event processing cycle*/
         //enter event loop

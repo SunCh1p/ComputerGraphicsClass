@@ -37,10 +37,21 @@ class HumanoidRobot{
             //move unique ptr into container
             m_children[part] = std::move(child);
         }
-        void colorBodyPart(BodyPart part, Vector3 color){
+        void colorBodyPart(BodyPart part, int option){
+            Vector3 color = {0,0,0};
+            if(option == 0){
+                //set color to red
+                color = {1,0,0};
+            } else if (option == 1){
+                //set color to green
+                color = {0,1,0};
+            } else {
+                //set color to blue
+                color = {0,0,1};
+            }
             //check if part exists
             if(m_children.find(part) != m_children.end()){
-                //if so color the child
+                //if so color the bodypart
                 m_children[part]->setColor(color);
             }
         }
