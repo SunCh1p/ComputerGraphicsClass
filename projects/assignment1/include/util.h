@@ -1,12 +1,20 @@
 #pragma once
 #include <GL/glut.h>
+#include <cmath>
 
 //TODO create vector3 class
 struct Vector3{
     GLdouble x, y, z;
     Vector3(GLdouble X, GLdouble Y, GLdouble Z) : x(X), y(Y), z(Z){}
+    GLdouble getMagnitude(){
+        return std::sqrt(x*x + y*y + z*z);
+    }
     Vector3 operator+(const Vector3& other){
         return Vector3(x+other.x, y+other.y, z+other.z);
+    }
+    
+    Vector3 operator-(const Vector3& other){
+        return Vector3(x-other.x, y-other.y, z-other.z);
     }
     bool operator==(Vector3 other){
         return x==other.x&&y==other.y&&z==other.z;

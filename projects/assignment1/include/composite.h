@@ -52,82 +52,6 @@ class HumanoidRobot{
 
 
 //composite classes/non exist atm/
-
-
-//Cube(a leaf class)
-class Cube : public Component{
-    public:
-        Cube(GLdouble size, Vector3 position = Vector3(0,0,0)): m_size(size), Component(position) {}
-        void draw(Vector3 parentPosition, char mode) const override{
-            //calculate global position
-            Vector3 globalPosition = parentPosition+m_position;
-            glPushMatrix();
-                //set the position
-                glTranslated(globalPosition.x, globalPosition.y, globalPosition.z);
-                //set the color
-                glColor3d(m_color.x, m_color.y, m_color.z);
-                //draw based on mode
-                if(mode == 'p'){
-                    GLdouble point = m_size/2;
-                    //draw vertex mode
-                    glBegin(GL_POINTS);
-                        //draw upper 4 corners
-                        glVertex3d(point, point, point);
-                        glVertex3d(point, point, -point);
-                        glVertex3d(-point, point, point);
-                        glVertex3d(-point, point, -point);
-                        //draw lower 4 corners
-                        glVertex3d(point, -point, point);
-                        glVertex3d(point, -point, -point);
-                        glVertex3d(-point, -point, point);
-                        glVertex3d(-point, -point, -point);
-                    glEnd();
-                } else if(mode == 'w'){
-                    //draw wireframe mode
-                    glutWireCube(m_size);
-                } else if(mode == 's'){
-                    //draw solid mode
-                    glutSolidCube(m_size);
-                }
-            glPopMatrix();
-            //otherwise, do nothing
-        }
-    private:
-        GLdouble m_size;
-};
-
-//Cube(a leaf class)
-class Sphere : public Component{
-    public:
-        Sphere(GLdouble size, Vector3 position = Vector3(0,0,0)): m_radius(size), Component(position) {}
-        void draw(Vector3 parentPosition, char mode) const override{
-            //calculate global position
-            Vector3 globalPosition = parentPosition+m_position;
-            glPushMatrix();
-                //set the position
-                glTranslated(globalPosition.x, globalPosition.y, globalPosition.z);
-                //set the color
-                glColor3d(m_color.x, m_color.y, m_color.z);
-                //draw based on mode
-                if(mode == 'p'){
-                    //TODO: make a vertex mode with spherical coordinates then convert to cartesian coordiantes
-                    glBegin(GL_POINTS);
-
-                    glEnd();
-                } else if(mode == 'w'){
-                    //draw wireframe mode
-                    glutWireSphere(m_radius,10,10);
-                } else if(mode == 's'){
-                    //draw solid mode
-                    glutSolidSphere(m_radius,10,10);
-                }
-            glPopMatrix();
-            //otherwise, do nothing
-        }
-    private:
-        GLdouble m_radius;
-};
-
 class Box : public Component{
     public:
         Box(GLdouble frontTopLeftX, GLdouble frontTopLeftY, GLdouble frontTopLeftZ, GLdouble width, GLdouble height, GLdouble length){
@@ -259,10 +183,59 @@ class Camera{
         void setTarget(Vector3 targetPosition){m_center = targetPosition;}
         void setUp(Vector3 newUp){m_up = newUp;}
         //Resource used for implementing camera rotation around what it's looking at
-        //http://www.lighthouse3d.com/tutorials/glut-tutorial/keyboard-example-moving-around-the-world/
-        void rotateAboutXAxis(GLdouble angle){}
-        void rotateAboutYAxis(GLdouble angle){}
-        void rotateAboutZAxis(GLdouble angle){}
+        //basically we use cylindrical coordinates to achieve camera orbit
+        //https://tutorial.math.lamar.edu/Classes/CalcIII/CylindricalCoords.aspx
+        void rotateAroundXAxis(GLdouble angle){
+            //compute radius on y z plane
+            GLdouble radius = sqrt((m_eye.y-m_center.y)*(m_eye.y-m_center.y) + (m_eye.z-m_center.z)*(m_eye.z-m_center.z));
+            //deal with case that radius is zero, if radius is zero, we cannot compute theta, thus orbit cannot occur
+            if(radius < 0.0001){
+                return;
+            }
+            //compute theta using atan2 to get theta because reasons I don't understand entirely but basically it can get an angle regardless of quadrant
+            GLdouble theta = atan2(m_eye.y-m_center.y, m_eye.z-m_center.z);
+            //convert angle to radians
+            angle = angle*M_PI/180;
+            //add angle to theta
+            theta+=angle;
+            //compute new y and z and adjust camera
+            m_eye.z = m_center.z+radius*cos(theta);
+            m_eye.y = m_center.y+radius*sin(theta);
+        }
+        void rotateAroundYAxis(GLdouble angle){
+            //computer radius on z x plane
+            GLdouble radius = sqrt((m_eye.x-m_center.x)*(m_eye.x-m_center.x) + (m_eye.z-m_center.z)*(m_eye.z-m_center.z));
+            //deal with case that radius is zero, if radius is zero, we cannot compute theta, thus orbit cannot occur
+            if(radius < 0.0001){
+                return;
+            }
+            //compute theta using atan2 to get theta because reasons I don't understand entirely but basically it can get an angle regardless of quadrant
+            GLdouble theta = atan2(m_eye.x - m_center.x, m_eye.z - m_center.z);
+            //convert angle to radians
+            angle = angle*M_PI/180;
+            //add angle to theta
+            theta+=angle;
+            //compute new x and z and adjust camera
+            m_eye.z = m_center.z+radius*cos(theta);
+            m_eye.x = m_center.x+radius*sin(theta);
+        }
+        void rotateAroundZAxis(GLdouble angle){
+            //computer radius on y x plane
+            GLdouble radius = sqrt((m_eye.y-m_center.y)*(m_eye.y-m_center.y) + (m_eye.x-m_center.x)*(m_eye.x-m_center.x));
+            //deal with case that radius is zero, if radius is zero, we cannot compute theta, thus orbit cannot occur
+            if(radius < 0.0001){
+                return;
+            }
+            //compute theta using atan2 to get theta because reasons I don't understand entirely but basically it can get an angle regardless of quadrant
+            GLdouble theta = atan2(m_eye.y - m_center.y, m_eye.x - m_center.x);
+            //convert angle to radians
+            angle = angle*M_PI/180;
+            //add angle to theta
+            theta+=angle;
+            //compute new x and z and adjust camera
+            m_eye.x = m_center.x + radius * cos(theta);
+            m_eye.y = m_center.y + radius * sin(theta);
+        }
         //accessor methods
         Vector3 getPosition() const{return m_eye;}
         Vector3 getTarget() const{return m_center;}
