@@ -104,7 +104,8 @@ void initScene(){
     tmpPtr = std::make_unique<Box>(2,3,1,1,3,1);
     robot.addChild(BodyPart::RightLeg, std::move(tmpPtr));
 }
-
+/***FUNCTIONS ASSOCIATED WITH MENU FUNCTIONALITY */
+/*functions for handling camera orbit around object*/
 void orbitAroundX(int option){
     GLdouble angle = 30;
     for(int i = 0; i < option+1; i++, angle+=30){
@@ -114,7 +115,6 @@ void orbitAroundX(int option){
     }
     camera.setCamera();
 }
-
 void orbitAroundY(int option){
     GLdouble angle = 30;
     for(int i = 0; i < option+1; i++, angle+=30){
@@ -124,7 +124,6 @@ void orbitAroundY(int option){
     }
     camera.setCamera();
 }
-
 void orbitAroundZ(int option){
     GLdouble angle = 30;
     for(int i = 0; i < option+1; i++, angle+=30){
@@ -134,26 +133,36 @@ void orbitAroundZ(int option){
     }
     camera.setCamera();
 }
-
+/*functions for handling object rotation*/
 void rotateAroundX(int option){
-
+    GLdouble angle = 30;
+    for(int i = 0; i < option+1; i++, angle+=30){
+        if(i == option){
+            robot.setAngle(angle,'x');
+        }
+    }
 }
-
 void rotateAroundY(int option){
-
+    GLdouble angle = 30;
+    for(int i = 0; i < option+1; i++, angle+=30){
+        if(i == option){
+            robot.setAngle(angle,'y');
+        }
+    }
 }
-
 void rotateAroundZ(int option){
-
+    GLdouble angle = 30;
+    for(int i = 0; i < option+1; i++, angle+=30){
+        if(i == option){
+            robot.setAngle(angle, 'z');
+        }
+    }
 }
-
 void processOrbitMenu(int option){
 }
 
 void processRotationMenu(int option){
-
 }
-
 void processProjectionMenu(int option){
     if(option == 0){
         std::cout << "orthographic projection" << std::endl;
@@ -241,11 +250,18 @@ void createGlutMenus(){
     glutAddSubMenu("RightArm", rightArm);
     glutAddSubMenu("LeftLeg", leftLeg);
     glutAddSubMenu("RightLeg", rightLeg);
+    //add submenus for rotatingobject
+    x = glutCreateMenu(rotateAroundX);
+    addDegEntries();
+    y = glutCreateMenu(rotateAroundY);
+    addDegEntries();
+    z = glutCreateMenu(rotateAroundZ);
+    addDegEntries();
     //sub menu for rotating object
     rotationMenu = glutCreateMenu(processRotationMenu);
-    glutAddSubMenu("RotateAroundX", head);
-    glutAddSubMenu("RotateAroundY", torso);
-    glutAddSubMenu("RotateAroundZ", leftArm);
+    glutAddSubMenu("RotateAroundX", x);
+    glutAddSubMenu("RotateAroundY", y);
+    glutAddSubMenu("RotateAroundZ", z);
     //create the menu and tell glut that processMenuEvents will handle the events
     menu = glutCreateMenu(processMenuEvents);
     //add entries to the menu
@@ -270,6 +286,7 @@ int main(int argc, char** argv){
         glutInitDisplayMode(GLUT_DEPTH | GLUT_RGB | GLUT_DOUBLE);
         //create the window
         glutCreateWindow("Assignment 1 - Connor Blaha | 811054403");
+        glEnable(GL_DEPTH_TEST);
         //initialize scene
         initScene();
         //create the right click menu

@@ -26,11 +26,34 @@ class Component{
 
 class HumanoidRobot{
     public:
-        HumanoidRobot(Vector3 position = Vector3(0,0,0)): m_position(position){}
+        HumanoidRobot(Vector3 position = Vector3(0,0,0)): m_position(position), m_rotation({0,0,0}){}
         void draw(char mode){
-            //draw all m_children relative to current position
-            for(auto& it: m_children){
-                it.second->draw(m_position, mode);
+            glPushMatrix();
+                glRotated(m_rotation.x, 1.0, 0.0, 0.0);
+                glRotated(m_rotation.y, 0.0, 1.0, 0.0);
+                glRotated(m_rotation.z, 0.0, 0.0, 1.0);
+                //draw all m_children relative to current position
+                for(auto& it: m_children){
+                    it.second->draw(m_position, mode);
+                }
+            glPopMatrix();
+        }
+        void setAngle(GLdouble angle, char axis){
+            if(axis == 'x'){
+                m_rotation.x = m_rotation.x + angle;
+                if(m_rotation.x > 360.1){
+                    m_rotation.x -= 360;
+                }
+            } else if(axis == 'y'){
+                m_rotation.y = m_rotation.y+angle;
+                if(m_rotation.y > 360.1){
+                    m_rotation.y -= 360;
+                }
+            } else {
+                m_rotation.z = m_rotation.z+angle;
+                if(m_rotation.z > 360.1){
+                    m_rotation.z -= 360;
+                }
             }
         }
         void addChild(BodyPart part ,std::unique_ptr<Component> child){
@@ -57,7 +80,7 @@ class HumanoidRobot{
         }
     private:
         Vector3 m_position;
-        //all m_children of humanoid robot
+        Vector3 m_rotation;
         std::unordered_map<BodyPart, std::unique_ptr<Component>> m_children;
 };
 
