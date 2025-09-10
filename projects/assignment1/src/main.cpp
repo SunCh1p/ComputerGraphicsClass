@@ -83,7 +83,7 @@ void processKeys(unsigned char key, int x, int y){
 
 void initScene(){
     //set the camera position
-    camera.setPosition(Vector3(1.5,5,30));
+    camera.setPosition(Vector3(1.5,5,20));
     camera.setTarget(Vector3(0,0,0));
     //give robot a head
     auto tmpPtr = std::make_unique<Box>(1,7,1,1,1,1);
@@ -165,9 +165,9 @@ void processRotationMenu(int option){
 }
 void processProjectionMenu(int option){
     if(option == 0){
-        std::cout << "orthographic projection" << std::endl;
+        camera.changePerspective('o');
     } else {
-        std::cout << "perspection projection" << std::endl;
+        camera.changePerspective('p');
     }
 }
 void processPartToColor(int option){

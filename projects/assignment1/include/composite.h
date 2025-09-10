@@ -22,8 +22,6 @@ class Component{
         Vector3 m_position;
         Vector3 m_color;
 };
-
-
 class HumanoidRobot{
     public:
         HumanoidRobot(Vector3 position = Vector3(0,0,0)): m_position(position), m_rotation({0,0,0}){}
@@ -192,15 +190,15 @@ class Axes : public Component{
                     //draw x red relative to parents position
                     glColor3f(1,0,0);
                     glVertex3f(0, 0, 0);
-                    glVertex3f(0+40, 0, 0);
+                    glVertex3f(0+100, 0, 0);
                     //draw y green
                     glColor3f(0,1,0);
                     glVertex3f(0, 0, 0);
-                    glVertex3f(0, 0+40, 0);
+                    glVertex3f(0, 0+100, 0);
                     //draw z blue
                     glColor3f(0,0,1);
                     glVertex3f(0, 0, 0);
-                    glVertex3f(0, 0, 0+40);
+                    glVertex3f(0, 0, 0+100);
                 glEnd();
             //reset to state before function
             glPopMatrix();
@@ -216,6 +214,17 @@ class Camera{
         void setPosition(Vector3 position){m_eye = position;}
         void setTarget(Vector3 targetPosition){m_center = targetPosition;}
         void setUp(Vector3 newUp){m_up = newUp;}
+        void changePerspective(char perspectiveFlag){
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            if(perspectiveFlag == 'o'){
+                glOrtho(-10, 10, -10, 10, 0.1, 50);
+            } else {
+                glFrustum(-0.5, 0.5, -0.5, 0.5, 1, 50);
+            }
+            glMatrixMode(GL_MODELVIEW);
+            setCamera();
+        }
         //Resource used for implementing camera rotation around what it's looking at
         //basically we use cylindrical coordinates to achieve camera orbit
         //https://tutorial.math.lamar.edu/Classes/CalcIII/CylindricalCoords.aspx
@@ -287,4 +296,5 @@ class Camera{
         Vector3 m_center;
         //which direction is up for the camera
         Vector3 m_up;
+        //
 };
