@@ -19,3 +19,7 @@ Components of computer system:
     layer between os and hardware layer is called the firmware layer(device drivers)
 
 For this class, the api we use is called opengl, means application programming interface for user to access libary
+
+
+api provided for api for viewing windows
+glViewPort(x,y,z) <- device a viewing window for final step rasterization
