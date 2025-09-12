@@ -1,16 +1,24 @@
 cmake_minimum_required(VERSION 3.16)
 project(Assignment1 LANGUAGES CXX)
 
-# Set C++ standard
+#set c++ standard
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Find OpenGL glut
+#find opengl
 find_package(OpenGL REQUIRED)
 find_package(GLU REQUIRED)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/freeglut-3.6.0)
+#fetch stuff needed to compile the repository
+include(FetchContent)
+#fetch free glut 3.6.0 from repository
+FetchContent_Declare(
+    freeglut
+    GIT_REPOSITORY https://github.com/FreeGLUTProject/freeglut.git
+    GIT_TAG v3.6.0
+)
+FetchContent_MakeAvailable(freeglut)
 
 #include headers
 include_directories(${PROJECT_SOURCE_DIR}/include)
