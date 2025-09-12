@@ -8,12 +8,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Find OpenGL glut
 find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
 find_package(GLU REQUIRED)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/thirdparty/freeglut-3.6.0)
 
 #include headers
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Main executable
 add_executable(Assignment1 src/main.cpp)
-target_link_libraries(Assignment1 PRIVATE OpenGL::GL GLUT::GLUT OpenGL::GLU)
+target_link_libraries(Assignment1 PRIVATE OpenGL::GL freeglut OpenGL::GLU)
