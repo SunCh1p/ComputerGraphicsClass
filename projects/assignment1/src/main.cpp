@@ -21,7 +21,7 @@ void renderScene(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //reset transformations
     glLoadIdentity();
-    //set the camera
+    //set the camera if needed
     camera.setCamera();
     //draw axis if enabled
     if(draw_axis){
@@ -104,64 +104,30 @@ void initScene(){
     tmpPtr = std::make_unique<Box>(2,3,1,1,3,1);
     robot.addChild(BodyPart::RightLeg, std::move(tmpPtr));
 }
+
 /***FUNCTIONS ASSOCIATED WITH MENU FUNCTIONALITY */
 /*functions for handling camera orbit around object*/
 void orbitAroundX(int option){
-    GLdouble angle = 30;
-    for(int i = 0; i < option+1; i++, angle+=30){
-        if(i == option){
-            camera.rotateAroundXAxis(angle);
-        }
-    }
+    camera.rotateAroundXAxis(30*(option+1));
     camera.setCamera();
 }
 void orbitAroundY(int option){
-    GLdouble angle = 30;
-    for(int i = 0; i < option+1; i++, angle+=30){
-        if(i == option){
-            camera.rotateAroundYAxis(angle);
-        }
-    }
+    camera.rotateAroundYAxis(30*(option+1));
     camera.setCamera();
 }
 void orbitAroundZ(int option){
-    GLdouble angle = 30;
-    for(int i = 0; i < option+1; i++, angle+=30){
-        if(i == option){
-            camera.rotateAroundYAxis(angle);
-        }
-    }
+    camera.rotateAroundZAxis(30*(option+1));
     camera.setCamera();
 }
 /*functions for handling object rotation*/
 void rotateAroundX(int option){
-    GLdouble angle = 30;
-    for(int i = 0; i < option+1; i++, angle+=30){
-        if(i == option){
-            robot.setAngle(angle,'x');
-        }
-    }
+    robot.setAngle(30*(option+1), 'x');
 }
-void rotateAroundY(int option){
-    GLdouble angle = 30;
-    for(int i = 0; i < option+1; i++, angle+=30){
-        if(i == option){
-            robot.setAngle(angle,'y');
-        }
-    }
+void rotateAroundY(int option){\
+    robot.setAngle(30*(option+1), 'y');
 }
 void rotateAroundZ(int option){
-    GLdouble angle = 30;
-    for(int i = 0; i < option+1; i++, angle+=30){
-        if(i == option){
-            robot.setAngle(angle, 'z');
-        }
-    }
-}
-void processOrbitMenu(int option){
-}
-
-void processRotationMenu(int option){
+    robot.setAngle(30*(option+1),'z');
 }
 void processProjectionMenu(int option){
     if(option == 0){
@@ -169,9 +135,6 @@ void processProjectionMenu(int option){
     } else {
         camera.changePerspective('p');
     }
-}
-void processPartToColor(int option){
-
 }
 void processHeadColorChange(int option){
     robot.colorBodyPart(BodyPart::Head, option);
@@ -191,10 +154,6 @@ void processRightLegColorChange(int option){
 void processRightArmColorChange(int option){
     robot.colorBodyPart(BodyPart::RightArm, option);
 }
-
-void processMenuEvents(int option){
-    std::cout << "Main menu" << std::endl;
-}
 void addDegEntries(){
     int optionSelection = 0;
     int angle = 30;
@@ -211,6 +170,7 @@ void createGlutMenus(){
     int menu, orbitMenu, rotationMenu, projectionMenu, colorMenu;
     int x, y, z;
     int head, torso, leftLeg, leftArm, rightLeg, rightArm;
+    auto blankFunction = [](int menu){};
     //create sub menu for x orbiting
     x = glutCreateMenu(orbitAroundX);
     addDegEntries();
@@ -220,15 +180,12 @@ void createGlutMenus(){
     //create sub menu for z orbiting
     z = glutCreateMenu(orbitAroundZ);
     addDegEntries();
-    //submenu for orbit
-    orbitMenu = glutCreateMenu(processOrbitMenu);
-    glutAddSubMenu("orbit about x", x);
-    glutAddSubMenu("orbit about y", y);
-    glutAddSubMenu("orbit about z", z);
+    //submenu for orbit, does not have any events that it needs to process, so blank lambda function is passed
+    orbitMenu = glutCreateMenu(blankFunction);
+    glutAddSubMenu("orbit about x", x); glutAddSubMenu("orbit about y", y); glutAddSubMenu("orbit about z", z);
     //submenu for projection
-    projectionMenu = glutCreateMenu(processProjectionMenu);
-    glutAddMenuEntry("Orthographic Projection", 0);
-    glutAddMenuEntry("Perspective Projection", 1);
+    projectionMenu = glutCreateMenu(processProjectionMenu); 
+    glutAddMenuEntry("Orthographic Projection", 0); glutAddMenuEntry("Perspective Projection", 1);
     //sub menus for coloring body parts
     head = glutCreateMenu(processHeadColorChange);
     addColorEntry();
@@ -243,13 +200,9 @@ void createGlutMenus(){
     rightLeg = glutCreateMenu(processRightLegColorChange);
     addColorEntry();
     //sub menu for selecting bodypart to color
-    colorMenu = glutCreateMenu(processPartToColor);
-    glutAddSubMenu("Head", head);
-    glutAddSubMenu("Torso", torso);
-    glutAddSubMenu("LeftArm", leftArm);
-    glutAddSubMenu("RightArm", rightArm);
-    glutAddSubMenu("LeftLeg", leftLeg);
-    glutAddSubMenu("RightLeg", rightLeg);
+    colorMenu = glutCreateMenu(blankFunction);
+    glutAddSubMenu("Head", head); glutAddSubMenu("Torso", torso); glutAddSubMenu("LeftArm", leftArm);
+    glutAddSubMenu("RightArm", rightArm); glutAddSubMenu("LeftLeg", leftLeg); glutAddSubMenu("RightLeg", rightLeg);
     //add submenus for rotatingobject
     x = glutCreateMenu(rotateAroundX);
     addDegEntries();
@@ -258,21 +211,18 @@ void createGlutMenus(){
     z = glutCreateMenu(rotateAroundZ);
     addDegEntries();
     //sub menu for rotating object
-    rotationMenu = glutCreateMenu(processRotationMenu);
-    glutAddSubMenu("RotateAroundX", x);
-    glutAddSubMenu("RotateAroundY", y);
-    glutAddSubMenu("RotateAroundZ", z);
+    rotationMenu = glutCreateMenu(blankFunction);
+    glutAddSubMenu("RotateAroundX", x); glutAddSubMenu("RotateAroundY", y); glutAddSubMenu("RotateAroundZ", z);
     //create the menu and tell glut that processMenuEvents will handle the events
-    menu = glutCreateMenu(processMenuEvents);
+    menu = glutCreateMenu(blankFunction);
     //add entries to the menu
     //add entries to our menu
-	glutAddSubMenu("Orbit Camera", orbitMenu);
-    glutAddSubMenu("Rotate Humanoid", rotationMenu);
-	glutAddSubMenu("Change Projection View", projectionMenu);
-	glutAddSubMenu("Change Color of Body Part", colorMenu);
+	glutAddSubMenu("Orbit Camera", orbitMenu); glutAddSubMenu("Rotate Humanoid", rotationMenu); glutAddSubMenu("Change Projection View", projectionMenu); glutAddSubMenu("Change Color of Body Part", colorMenu);
 	// attach the menu to the right button
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
+
+
 
 int main(int argc, char** argv){
     /*Initialize glut and create window*/
