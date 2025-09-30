@@ -10,11 +10,11 @@
     a composite which also has a common interface, and a leaf node which has a common interface as well but no children.
 */
 //interface in which all body parts will use
-class Component {
+class DrawInterfacet {
 public:
-    Component(Vector3 position = Vector3(0, 0, 0), Vector3 color = Vector3(0, 1, 0), Vector3 rotation = Vector3(0,0,0)) : m_position(position), m_color(color), m_rotation(rotation) {}
-    //must be overwritten
-    virtual void draw(bool grayScale, Vector3 parentPosition, char mode) const = 0;
+    DrawInterface(Vector3 position = Vector3(0, 0, 0), Vector3 color = Vector3(0, 1, 0), Vector3 rotation = Vector3(0,0,0)) : m_position(position), m_color(color), m_rotation(rotation) {}
+    //must be overwritten, how an object that inherits draw interface draws itself
+    virtual void draw(Vector3 parentPosition, char mode) const = 0;
     //optional to override
     virtual void setColor(Vector3 color) { m_color = color; }
     //optional overrides for setting and getting angle in each dimension

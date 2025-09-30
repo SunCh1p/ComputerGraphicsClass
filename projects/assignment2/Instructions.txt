@@ -1,0 +1,40 @@
+1) Create Interactive Camera that navigate the graphic scene using the four arrow keys, referencing the snowman example code from lecture 8 and 9
+slides as well as snowmen tutorial #1 below. You must place at least five humanoid robots at random locations, using the humanoid robot you created from assignment 1
+
+- create a ground plane referencing the examples
+- random robot placement using the rand() or srand() functions in cstdlib library
+- Camera 1: First Person View moves using the arrow keys moves forward and backward, rotates left and right.
+    Create a camera object(e.g., a box you may design your own) that moves with the arrow keys.
+    Ensure the camera object is small enough not to obstruct the display of humanoid robots
+
+- Camera 2: Rear Mirror View which simulates a rear-view mirror (like a car), showing the rear perspective of Camera 1.
+It also moves using the arrow keys. Display this view in the upper-left corner of the window at one-quarter of the window size.
+Please review example 3 from the slides
+
+-Camera 3:Entire scene view(bird's eye view). This camera remains at an ideal location to cover the entire scene
+. Display its view in the upper-right corner of the window at one quarter of the window size. Please review Example3 from the lecture slides
+
+2)Implement dancing robot animations for humanoid robots:
+-group dancing: all robots perform the same dancing animations 
+-individual dancing: each robot performs a distinct animation 
+-music sound effects: play a wav file for dancing
+-toggle dancing: use the 'd' key to start/stop the dancing animation 
+
+3) Implement the following keyboard controls using GLUT:
+'w' to display the wireframe model (edge lines) of the entire scene and objects
+'s' to display the solid model 
+'a' to toggle axis display on/off at the origin of the world coordinate.
+'d': toggle the dancing animation on and off 
+'f1' toggle the rear view camera view on and off 
+'f2' toggle the entire scene view (camera 3) on/off 
+'f3' switch between camera 1(first person view(fpv)) and camera 3(entire scene view(esv)). The window view should alternate between these two perspectives(FPV<=> ESV)
+up: move camera forward
+down: move camera backward 
+left: rotate the camera to the left 
+right: rotate the camera to the right 
+
+4) demonstrate your creativity by implementing an additional feature or cool effects
+    include a keyboard instruction to activate or dispaly this feature
+
+Source: Used as inspiration when building project on how to properly structure it as well as learn how to make an entity component system
+https://code.austinmorlan.com/austin/2019-ecs/src/branch/master/Source

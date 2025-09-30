@@ -1,0 +1,81 @@
+@startuml
+title Pure ECS Architecture (Entity as ID)
+class Globals {
+  {static} MAX_COMPONENTS : ComponentType = 32
+  {static} MAX_ENTITIES : EntityType = 5000
+}
+
+
+' Signature type: way to track which components an entity has
+class Signature {
+  bitset<MAX_COMPONENTS>
+}
+
+' Entity is just an id
+class Entity {
+    id : uint32_t
+}
+
+' Components
+class ComponentType{
+    id: uint8_t
+}
+class TransformComponent {
+    Position : Vector3D
+    Rotation : Quaternion
+    Scale : Vector3D
+}
+
+'Entity manager is responsible for distributing entity ids and keeping a record of which are in use and what is not in use as well as registering what components they have
+class EntityManager {
+  - mAvailableEntities : queue<Entity>
+  - mSignatures : array<Signature, MAX_ENTITIES>
+  - mLivingEntityCount : uint32_t
+
+  + EntityManager()
+  + CreateEntity() : Entity
+  + DestroyEntity(entity : Entity) : void
+  + SetSignature(entity : Entity, signature : Signature) : void
+  + GetSignature(entity : Entity) : Signature
+}
+
+'IComponentArray is needed to component manager can tell a generic component array that an entity has been destroyed
+class  IComponentArray{
+    +~IComponentArray() = default
+    +EntityDestroyed(Entity entity) : void
+}
+'A component array will be associated with each component
+class ComponentArray {
+    +InsertData(entity: Entity, component: T) : void
+    +RemoveData(entity: Entity) : void
+    +GetData(entity: Entity): T&
+    +EntityDestroyed(entity Entity) : void override
+    -m_ComponentArray: array<T, MAX_ENTITIES>
+    -m_EntityToIndexMap: unordered_map<Entity, size_t>
+    -m_IndexToEntityMap: unordered_map<size_t, Entity> 
+}
+
+'Component Manager - talks to different component arrays when a component needs to be added or removed
+class ComponentManager {
+  - mComponentTypes : unordered_map<const char*, ComponentType>
+  - mComponentArrays : unordered_map<const char*, shared_ptr<IComponentArray>>
+  - mNextComponentType : ComponentType
+
+  + RegisterComponent()
+  + GetComponentType() : ComponentType
+  + AddComponent>(entity : Entity, component : T)
+  + RemoveComponent(entity : Entity)
+  + GetComponent(entity : Entity) : T&
+  + EntityDestroyed(entity : Entity)
+  - GetComponentArray() : shared_ptr<ComponentArray>>
+}
+
+'Component Array relationships
+IComponentArray <|-- ComponentArray
+
+'Component Manager relationshiops
+ComponentManager --> ComponentType
+ComponentManager --> IComponentArray
+ComponentManager --> Entity
+
+@enduml
