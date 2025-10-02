@@ -20,11 +20,12 @@ class Entity {
 class ComponentType{
     id: uint8_t
 }
-class TransformComponent {
-    Position : Vector3D
-    Rotation : Quaternion
-    Scale : Vector3D
+
+class ConcreteComponent{
+  some data stored in struct
 }
+
+ComponentType <|-- ConcreteComponent
 
 'Entity manager is responsible for distributing entity ids and keeping a record of which are in use and what is not in use as well as registering what components they have
 class EntityManager {
@@ -38,6 +39,9 @@ class EntityManager {
   + SetSignature(entity : Entity, signature : Signature) : void
   + GetSignature(entity : Entity) : Signature
 }
+
+EntityManager o-- Signature
+EntityManager o-- Entity
 
 'IComponentArray is needed to component manager can tell a generic component array that an entity has been destroyed
 class  IComponentArray{
@@ -69,6 +73,58 @@ class ComponentManager {
   + EntityDestroyed(entity : Entity)
   - GetComponentArray() : shared_ptr<ComponentArray>>
 }
+
+'System -> is any functionality that iterates upon a list of entities with a certain signature of components
+'every system needs a list of entities, and we want some logic outside of the system in a form of a manager to maintain that list
+'each system can inherit from this class for logic
+class System{
+  -mEntities: std::set<Entity>
+}
+
+'concrete system implements some kind of functionality for logic
+class ConcreteSystem{
+  
+}
+
+System o-- Entity : contains
+System <|-- ConcreteSystem
+
+'System Manager maintains a record of registered systems and their signatures
+'When a system is registered, it's added to a map with the same typeid(T).name()
+'Register system to build the system
+'Each system needs to have a signatureset for ti so that the manager can add appropriate entities to each system's list of entities
+class SystemManager{
+  +RegisterSystem(): std::shared_ptr<T>
+  +SetSignature(signature: Signature): void
+  +EntityDestroyed(entity: Entity): void
+  +EntitySignatureChanged(entity: Entity, entitySignature: Signature): void
+  -mSignatures: unordered_map<const char*, Signature>
+  -mSystems: unordered_map<const char*, std::shared_ptr<System>> mSystems
+}
+
+SystemManager o-- Signature
+SystemManager --> System
+
+'Single class dedicated to getting EntityManager, Component Manager, System Manager so they can talk to eachother
+class World{
+  +init(): void
+  +CreateEntity(): Entity
+  +DestroyEntity(): void 
+  +RegisterComponent(): void
+  +AddComponent(entity: Entity, T: component): void
+  +RemoveComponent(entity: Entity): void
+  +GetComponent(entity: Entity): T&
+  +GetComponentType(): ComponentType 
+  +RegisterSystem(): std::shared_ptr<T>
+  +SetSystemSignature(signature Signature): void
+  -mComponentManager: unique_ptr<ComponentManager>
+  -mEntityManager: unique_ptr<EntityManager>
+  -mSystemManager: unique_ptr<SystemManager>
+}
+
+World --> ComponentManager 
+World --> EntityManager 
+World --> SystemManager
 
 'Component Array relationships
 IComponentArray <|-- ComponentArray
