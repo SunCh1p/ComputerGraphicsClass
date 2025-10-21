@@ -1,45 +1,23 @@
 #pragma once
 #include <numbers>
-#include "util.h"
+#include "DrawComponent.h"
+#include "Util.h"
 //class for camera
-class Camera {
+class Camera : public DrawInterface {
 public:
     //constructor
-    Camera() : m_eye(Vector3(0, 0, 0)), m_center(Vector3(0, 5, 0)), m_up(Vector3(0, 1, 0)) {}
-    //mutator methods
-    //sets position of camera
-    void setPosition(Vector3 position);
-    //set position camera is looking at
-    void setTarget(Vector3 targetPosition);
-    //defines what up is for the camera
-    void setUp(Vector3 newUp);
-    //changes perspective to either orthographic or perspective projection
-    void changePerspective(char perspectiveFlag);
-    //used to zoom camera in
-    void zoomCamera(GLdouble dir);
-    //Resource used for implementing camera rotation around what it's looking at
-    //basically we use cylindrical coordinates to achieve camera orbit
-    //https://tutorial.math.lamar.edu/Classes/CalcIII/CylindricalCoords.aspx
-    //camera rotation around x axis
-    void rotateAroundXAxis(GLdouble angle);
-    //camera rotation around y axis
-    void rotateAroundYAxis(GLdouble angle);
-    //camera rotation around z axis
-    void rotateAroundZAxis(GLdouble angle);
+    Camera() : m_x(0.0f), m_z(10.0f), m_lx(0.0f), m_lz(-1.0f), m_camAngle(0.0f), m_up(Vector3(0, 1, 0)) {}
+    void computePos(float deltaMove); //used to figure out position camera is supposed to go to
+    void computeDir(float deltaAngle); //used to figure out direction vector in which camera will use to advance position
+    void draw(char mode) const override;
     //accessor methods
-    //gets the position of the camera
-    Vector3 getPosition() const;
-    //gets the target position for which the camera looks at(m_center)
-    Vector3 getTarget() const;
-    //gets the up vector for camera
-    Vector3 getUp() const;
-    //sets camera
-    void setCamera() const;
+    void setCameraFPV() const; //sets camera first person view mode
+    void setCameraRMV() const; //sets camera using rear view mirror mode
+    void setCameraESV() const; //sets camera above everything looking down
 private:
-    //camera position
-    Vector3 m_eye;
-    //what the camera is looking at
-    Vector3 m_center;
+    float m_x, m_z; //camera posiition
+    float m_lx, m_lz; //what camera is looking at
+    float m_camAngle; 
     //which direction is up for the camera
     Vector3 m_up;
 };

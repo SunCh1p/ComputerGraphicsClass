@@ -1,49 +1,31 @@
 #include "Box.h"
 
-Box::Box(GLdouble frontTopLeftX, GLdouble frontTopLeftY, GLdouble frontTopLeftZ, GLdouble width, GLdouble height, GLdouble length) {
+Box::Box(GLdouble frontTopLeftX, GLdouble frontTopLeftY, GLdouble frontTopLeftZ, GLdouble width, GLdouble height, GLdouble length, Vector3 pivot){
     m_position = Vector3(frontTopLeftX, frontTopLeftY, frontTopLeftZ);
     m_width = width;
     m_height = height;
     m_length = length;
+    m_pivot = pivot;
 }
 
-void Box::draw(bool grayScale, Vector3 parentPosition, char mode) const{
+void Box::draw(char mode) const {
     //calculate global position of front top left corner
-    Vector3 globalPosition = parentPosition + m_position;
     glPushMatrix();
     //set the position of front top left corner
-    glTranslated(globalPosition.x, globalPosition.y, globalPosition.z);
+    glTranslated(m_position.x, m_position.y, m_position.z);
+    //apply pivot rotation
+    glTranslated(m_pivot.x, m_pivot.y, m_pivot.z);
     //set the rotation of box
     glRotated(m_rotation.x, 1.0, 0.0, 0.0);
     glRotated(m_rotation.y, 0.0, 1.0, 0.0);
     glRotated(m_rotation.z, 0.0, 0.0, 1.0);
+    //translate back from pivot
+    glTranslated(-m_pivot.x, -m_pivot.y, -m_pivot.z);
     //set the color, differs depending if it is grayscale or not
-    if (grayScale) {
-        //https://www.grayscaleimage.com/three-algorithms-for-converting-color-to-grayscale/
-        //using luminosity method from this resource to achieve gray scaling
-        GLdouble gray = m_color.x * 0.299 + m_color.y * 0.587 + m_color.z * 0.114;
-        glColor3d(gray, gray, gray);
-    }
-    else {
-        glColor3d(m_color.x, m_color.y, m_color.z);
-    }
+    glColor3d(m_color.x, m_color.y, m_color.z);
     //set the draw mode
     GLenum drawMode = GL_ZERO;
-    if (mode == 'p') {
-        glBegin(GL_POINTS);
-        //draw upper 4 corners
-        glVertex3d(0, 0, 0);
-        glVertex3d(0, 0, 0 - m_length);
-        glVertex3d(0 + m_width, 0, 0);
-        glVertex3d(0 + m_width, 0, 0 - m_length);
-        //draw upper 4 corners
-        glVertex3d(0, 0 - m_height, 0);
-        glVertex3d(0, 0 - m_height, 0 - m_length);
-        glVertex3d(0 + m_width, 0 - m_height, 0);
-        glVertex3d(0 + m_width, 0 - m_height, 0 - m_length);
-        glEnd();
-    }
-    else if (mode == 'w') {
+    if (mode == 'w') {
         glBegin(GL_LINES);
         //line going from front top left to back top left
         drawLine(Vector3(0, 0, 0), Vector3(0, 0, 0 - m_length));

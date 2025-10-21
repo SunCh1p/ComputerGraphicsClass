@@ -1,14 +1,18 @@
 #include "HumanoidRobot.h"
+#include <iostream>
 
-void HumanoidRobot::draw(char mode, bool grayScale) {
+void HumanoidRobot::draw(char mode) {
     glPushMatrix();
+    //translate robot to position
+    glTranslated(m_position.x, m_position.y, m_position.z);
     //rotate object
     glRotated(m_rotation.x, 1.0, 0.0, 0.0);
     glRotated(m_rotation.y, 0.0, 1.0, 0.0);
     glRotated(m_rotation.z, 0.0, 0.0, 1.0);
+
     //draw all m_children relative to current position as well as passing drawing mode and black and white mode to them
     for (auto& it : m_children) {
-        it.second->draw(grayScale, m_position, mode);
+        it.second->draw(mode);
     }
     glPopMatrix();
 }
@@ -35,6 +39,14 @@ void HumanoidRobot::setAngle(GLdouble angle, char axis) {
     }
 }
 
+void HumanoidRobot::setPos(Vector3 pos) {
+    m_position = pos;
+}
+
+Vector3 HumanoidRobot::getPos() {
+    return m_position;
+}
+
 GLdouble HumanoidRobot::getAngle(char dimension) {
     //gets offset angle in specified dimension
     if (dimension == 'x') {
@@ -48,7 +60,7 @@ GLdouble HumanoidRobot::getAngle(char dimension) {
     }
 }
 
-void HumanoidRobot::addChild(BodyPart part, std::unique_ptr<Component> child) {
+void HumanoidRobot::addChild(BodyPart part, std::unique_ptr<DrawInterface> child) {
     //move unique ptr into container
     m_children[part] = std::move(child);
 }
@@ -63,13 +75,13 @@ void HumanoidRobot::colorBodyPart(BodyPart part, int option) {
         //set color to green
         color = { 0,1,0 };
     }
-    else if(option == 2){
+    else if (option == 2) {
         //set color to blue
         color = { 0,0,1 };
     }
-    else if (option == 3){
+    else if (option == 3) {
         //set color to yelloiw
-        color = {1,1,0};
+        color = { 1,1,0 };
     }
     //check if part exists
     if (m_children.find(part) != m_children.end()) {

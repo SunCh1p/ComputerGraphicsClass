@@ -1,7 +1,7 @@
 #include "AudioController.h"
 #include <iostream>
 
-void AudioController::registerSound(Audio audio, std::wstring path){
+void AudioController::registerSound(Audio audio, std::wstring path) {
 	audioToPath[audio] = path;
 }
 

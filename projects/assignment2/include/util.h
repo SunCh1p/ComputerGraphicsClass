@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include <GL/glut.h>
 #include <cmath>
 //Vector3 struct, will turn into a class in the future
@@ -6,6 +7,7 @@
 //inspired by the best solution example in the assignment
 struct Vector3 {
     GLdouble x, y, z;
+    Vector3() : x(0), y(0), z(0) {}
     Vector3(GLdouble X, GLdouble Y, GLdouble Z) : x(X), y(Y), z(Z) {}
     GLdouble getMagnitude() {
         return std::sqrt(x * x + y * y + z * z);
@@ -18,7 +20,7 @@ struct Vector3 {
             y /= magnitude;
             z /= magnitude;
         }
-        
+
     }
 
     Vector3 operator*(double scalar) {
